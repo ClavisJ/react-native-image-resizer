@@ -35,12 +35,12 @@ RCT_REMAP_METHOD(createResizedImage, uri:(NSString *)uri width:(double)width hei
                 extension = @"png";
             }
             
-            NSString* fullPath;
-            @try {
-                fullPath = generateFilePath(extension, outputPath);
-            } @catch (NSException *exception) {
-                [NSException raise:moduleName format:@"Invalid output path."];
-            }
+//            NSString* fullPath;
+//            @try {
+//                fullPath = generateFilePath(extension, outputPath);
+//            } @catch (NSException *exception) {
+//                [NSException raise:moduleName format:@"Invalid output path."];
+//            }
             
             RCTImageLoader *loader = [self.bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES];
             NSURLRequest *request = [RCTConvert NSURLRequest:uri];
@@ -57,7 +57,7 @@ RCT_REMAP_METHOD(createResizedImage, uri:(NSString *)uri width:(double)width hei
                     reject([NSString stringWithFormat: @"%ld", (long)error.code], error.description, nil);
                     return;
                 }
-                NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, [keepMeta boolValue], @{@"mode": mode, @"onlyScaleDown": [NSNumber numberWithBool:onlyScaleDown]});
+                NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, outputPath, format, (int)quality, [keepMeta boolValue], @{@"mode": mode, @"onlyScaleDown": [NSNumber numberWithBool:onlyScaleDown]});
                 resolve(response);
             }];
         } @catch (NSException *exception) {
