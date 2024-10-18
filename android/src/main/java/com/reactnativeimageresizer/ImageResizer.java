@@ -1,26 +1,28 @@
 package com.reactnativeimageresizer;
 
-import android.content.Context;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
-import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.exifinterface.media.ExifInterface;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
 
 /**
  * Provide methods to resize and rotate an image file.
@@ -206,30 +208,34 @@ public class ImageResizer {
    * Save the given bitmap in a directory. Extension is automatically generated using the bitmap format.
    */
   public static File saveImage(Bitmap bitmap, File saveDirectory, String fileName,
-                               Bitmap.CompressFormat compressFormat, int quality)
-    throws IOException {
+                               Bitmap.CompressFormat compressFormat, int quality) throws IOException {
     if (bitmap == null) {
       throw new IOException("The bitmap couldn't be resized");
     }
+    // 创建一个新的 Bitmap，设置背景为白色
+    Bitmap newBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 
-    File newFile = new File(saveDirectory, fileName + "." + compressFormat.name());
-    if(!newFile.createNewFile()) {
-      throw new IOException("The file already exists");
-    }
+    // 在 Canvas 上绘制白色背景
+    Canvas canvas = new Canvas(newBitmap);
+    canvas.drawColor(Color.WHITE);
 
+    // 绘制原始图像到 Canvas 上
+    canvas.drawBitmap(bitmap, 0, 0, null);
+
+    // 将 Bitmap 压缩为 JPG 格式
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    bitmap.compress(compressFormat, quality, outputStream);
+    newBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
     byte[] bitmapData = outputStream.toByteArray();
-
     outputStream.flush();
     outputStream.close();
 
-    FileOutputStream fos = new FileOutputStream(newFile);
+    // 将字节数组写入文件
+    FileOutputStream fos = new FileOutputStream(saveDirectory);
     fos.write(bitmapData);
     fos.flush();
     fos.close();
 
-    return newFile;
+    return saveDirectory;
   }
 
   /**
